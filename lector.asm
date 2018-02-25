@@ -15,6 +15,7 @@
 	str3: .asciiz "\n numero de lineas de contenido: "
 	str4: .asciiz "\n contenido del archivo: "
 	contador: .space 3
+	str5: .asciiz "\n PRUEBA GIGANTE"
 .text
 	main:
 	#INICIALIZACION
@@ -169,6 +170,28 @@ Vaciar_nombre:
 	la $a1, nombre_init_archivos
 	la $a2, contenido_init_archivos
 	jal dir_init
+	la $t1, Directorio
+	li $v0,11
+	lb $a0, ($t1)
+	syscall
+	#IMPRIME EL NOMBRE DEL ARCHIVO
+	li $v0,4
+	la $a0,4($t1)
+	syscall
+	#IMPRIME EL TAMANO DEL ARCHIVO
+	li $v0,1
+	lw $a0,28($t1)
+	syscall
+	#IMPRIME EL SIGUIENTE DEL ARCHIVO
+	li $v0,1
+	lw $a0,32($t1)
+	syscall
+	#IMPRIME EL NOMBRE DEL ARCHIVO
+	li $v0,4
+	la $a0,36($t1)
+	syscall
+	
+
 	
 	li $t0, 0	#contador
 	li $t2, 0	#Sustituo " " 
@@ -236,37 +259,50 @@ la $t5, Directorio
 #DIRECCION DISPONIBLE PARA EL PROXIMO ARCHIVO
 addi $t6,$t5,4
 #TAMANO INICIAL DEL DIRECTORIO
-sw $zero, ($t5)
+lb $s7, ($t1)
+sb $s7, ($t5)
 
-li $s0, 0
+
+li $v0, 4
+la $a0, str5
+syscall
+
+li $s5, 0
 iterar_y_copiar:
-beq $s0, 22, establecer_tamano
-sb $t2, ($t6)
+beq $s5, 22, establecer_tamano
+lb $t8, ($t2)
+sb $t8, ($t6)
+addi $t2, $t2, 1
 addi $t6, $t6, 1
-addi $s0, $s0, 1	
+addi $s5, $s5, 1	
 j iterar_y_copiar
 
 establecer_tamano:
 li $s1,5
 sw $s1,2($t6)
+
 #ESTABLECER EL SIGUIENTE
-addi $t6, $t6, 4
+addi $t6, $t6, 6 #PARADOS EN LA POSICION 28
 addi $t7,$t6,1028
-sw $t7, ($t6)
-addi $t6, $t6, 4
+sb $t7, ($t6)
+
 #GUARDAR CONTENIDO
-li $s0, 0
+addi $t6, $t6, 4 #PARADOS EN LA POSICION 32
+li $s5, 0
 iterar_y_copiar2:
-beq $s0, 1022, salir
-sb $t3, ($t6)
+beq $s5, 1022, salir
+lb $t9, ($t3)
+sb $t9, ($t6)
 addi $t6, $t6, 1
-addi $s0, $s0, 1	
+addi $s5, $s5, 1	
+addi $t3, $t3, 1
 j iterar_y_copiar2
 
 
 salir:
 #DIRECCION DISPONIBLE PARA EL SIGUIENTE 
 addi $t6,$t6,2
+jr $ra
 
 
 
