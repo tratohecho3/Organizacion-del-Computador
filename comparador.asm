@@ -4,7 +4,7 @@ msg2:.asciiz "\n No son iguales"
 msg3:.asciiz "\n Son iguales"
 str1: .space 15
 str2: .space 15
-#.include "interprete2.asm"
+
 .text
 
 main:

@@ -1,0 +1,6 @@
+1
+arc.txt
+3
+hola soy el archivo de pruebas
+y tengo tres lineas
+de contenido
