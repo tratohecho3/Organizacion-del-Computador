@@ -4,3 +4,7 @@ arc.txt
 hola soy el archivo de pruebas
 y tengo tres lineas
 de contenido
+jaja.txt
+2
+primera
+segunda

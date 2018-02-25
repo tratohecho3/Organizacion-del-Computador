@@ -7,54 +7,6 @@ str2: .space 15
 
 .text
 
-main:
-
-#Imprimir msg1
-li $v0,4
-la $a0,msg1
-syscall
-#Obtener palabra1
-li $v0,8
-la $a0,str1
-addi $a1,$zero,20
-syscall 
-
-
-#Imprimir msg1  
-li $v0,4
-la $a0,msg1
-syscall
-#Obtener palabra2
-li $v0,8
-la $a0,str2
-addi $a1,$zero,20
-syscall 
-#Parametros para comparador
-la $a0,str1  
-la $a1,str2  
-jal comparador  
-#Chequeando resultado
-# 0 son diferentes
-# 1 son iguales
-beq $v0,$zero,ok 
-#Imprime msg2
-li $v0,4
-la $a0,msg2
-syscall
-#Salir
-j exit
-
-ok:
-#Imprime msg3
-li $v0,4
-la $a0,msg3
-syscall
-
-exit:
-#Salir
-li $v0,10
-syscall
-
 comparador:
 #Convencion del llamado
 sw $fp, ($sp)

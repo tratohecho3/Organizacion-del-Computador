@@ -1,4 +1,6 @@
-.data
+.data	
+	#GUARDA ESPACIO PARA 10 ARCHIVOS + ATRIBUTO TAMANO DEL DIRECTORIO
+	Directorio: .space 10564 
 	fout: .asciiz "C:/Users/Daniel/Documents/programacion/mars_ejercicios/prueba2.txt"    #Nombre archivo
 	buffer: .space 1024
 	newLine: .asciiz "\n"
@@ -40,10 +42,10 @@
 	move $t5, $v0 	  
 	
 	# IMPRIME EL CONTENIDO (PRUEBA)
-	li	$v0, 4			
-	la	$a0, buffer		# el buffer contiene el contenido del archivo
-	la 	$s0, buffer		# Guardo el contenido en $s0 para manipularlo
-	syscall				# print int
+	#li	$v0, 4			
+	#la	$a0, buffer		# el buffer contiene el contenido del archivo
+	la 	$s0, buffer		#### Guardo el contenido en $s0 para manipularlo VIP #####
+	#syscall				# print int
 	
 	#INICIALIZACION PRUEBA
 	#la $t4, resultado
@@ -67,6 +69,7 @@ primera_linea:
 	#syscall
 	#Guarda en num_archivos_init el el num de archivos
 	sb $t1, ($s2)			#S2 contiene el num de archivos
+
 	addi $t2, $t2, 1
 	j primera_linea
 	
@@ -101,7 +104,6 @@ Iterar_caracter:
 	continue:
 	la $t4, num_lineas_contenido
 	lb $t5, ($t4)
-	#lb $t6, ($t7)
 	beqz $t6, Fin #NO NECESARIO
 	beq $t6,$t5, Fin
 	addi $s0, $s0, 1
@@ -114,7 +116,6 @@ Iterar_caracter:
 	
 	contar_1_al_contador:
 	addi $t6, $t6, 1
-	#sb $t6, ($t7)
 	j continue
 	
 	
@@ -152,11 +153,23 @@ Fin:
 	li $v0 4
 	la $a0, contenido_init_archivos
 	syscall
-	#b Vaciar_nombre
+	
+	lb $t1, ($s0)
+	beqz $t1, exit  
+	
+	
+	j Vaciar_nombre
+	j Iterar_caracter
+	exit:
 	li $v0 10
 	syscall
 
 Vaciar_nombre:
+	la $a0, num_init_archivos
+	la $a1, nombre_init_archivos
+	la $a2, contenido_init_archivos
+	jal dir_init
+	
 	li $t0, 0	#contador
 	li $t2, 0	#Sustituo " " 
 	continuar_nombre:
@@ -171,7 +184,7 @@ Vaciar_contenido:
 	li $t0, 0	#contador
 	li $t2, 0	#Sustituo " " 
 	continuar_contenido:
-	beq $t0, 10, Vaciar_num_cont
+	beq $t0, 1024, Vaciar_num_cont
 	la $t5, contenido_init_archivos
 	sb $t2, ($t5)
 	addi $t5, $t5, 1
@@ -182,6 +195,14 @@ Vaciar_num_cont:
 	li $t0, 0	#contador
 	li $t2, 0	#Sustituo " "
 	addi $s0, $s0, 1 
+	####### RE-INICIALIZAR
+	lb $s1, newLine
+	la $s2, num_init_archivos
+	la $s3, nombre_init_archivos
+	li $s4, 1
+	la $t7, num_lineas_contenido
+	la $s5, contenido_init_archivos
+	#######
 	continuar_num_cont:
 	beq $t0, 3, Iterar_caracter
 	la $t5, num_lineas_contenido
@@ -195,3 +216,57 @@ Error_leer_archivo:
 	li $v0, 4
 	la $a0, msg_error1
 	syscall
+	
+
+
+dir_init:
+#Inicializando
+add $t0,$zero,$zero
+#NUMERO DE ARCHIVOS
+add $t1,$zero,$a0
+#NOMBRE DEL ARCHIVO
+add $t2,$zero,$a1
+#CONTENIDO DEL ARCHIVO
+add $t3,$zero,$a2
+
+#NUMERO  DE VECES A ITERAR
+lb $t4, ($t1)
+#DIRECCION DEL DIRECTORIO
+la $t5, Directorio
+#DIRECCION DISPONIBLE PARA EL PROXIMO ARCHIVO
+addi $t6,$t5,4
+#TAMANO INICIAL DEL DIRECTORIO
+sw $zero, ($t5)
+
+li $s0, 0
+iterar_y_copiar:
+beq $s0, 22, establecer_tamano
+sb $t2, ($t6)
+addi $t6, $t6, 1
+addi $s0, $s0, 1	
+j iterar_y_copiar
+
+establecer_tamano:
+li $s1,5
+sw $s1,2($t6)
+#ESTABLECER EL SIGUIENTE
+addi $t6, $t6, 4
+addi $t7,$t6,1028
+sw $t7, ($t6)
+addi $t6, $t6, 4
+#GUARDAR CONTENIDO
+li $s0, 0
+iterar_y_copiar2:
+beq $s0, 1022, salir
+sb $t3, ($t6)
+addi $t6, $t6, 1
+addi $s0, $s0, 1	
+j iterar_y_copiar2
+
+
+salir:
+#DIRECCION DISPONIBLE PARA EL SIGUIENTE 
+addi $t6,$t6,2
+
+
+
